@@ -7,6 +7,7 @@ class Libunistring < Formula
   md5 'db8eca3b64163abadf8c40e5cecc261f'
 
   def install
+    ENV.universal_binary
     system "./configure", "--prefix=#{prefix}", "--disable-dependency-tracking"
     system "make install"
   end
