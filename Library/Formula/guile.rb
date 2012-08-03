@@ -27,9 +27,13 @@ class Guile < Formula
   end
 
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          "--with-libreadline-prefix=#{Formula.factory('readline').prefix}"
+    args = []
+    args << "--with-universal-archs=intel" if ARGV.include? "--universal"
+    args << "--disable-dependency-tracking"
+    args << "--prefix=#{prefix}"
+    args << "--with-libreadline-prefix=#{Formula.factory('readline').prefix}",
+    
+    system "./configure", *args
     system "make install"
 
     # A really messed up workaround required on OS X --mkhl
