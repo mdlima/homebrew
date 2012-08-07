@@ -37,7 +37,7 @@ class Wxmac < Formula
       # At this time Wxmac is installed Unicode only
       "UNICODE=1",
       # And thus we have no need for multiversion support
-      "INSTALL_MULTIVERSION=0",
+      "INSTALL_MULTIVERSION=1",
       # OpenGL and stuff
       "BUILD_GLCANVAS=1",
       "BUILD_GIZMOS=1",
