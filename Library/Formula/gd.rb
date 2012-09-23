@@ -17,7 +17,11 @@ class Gd < Formula
   end
 
   def install
-    system "./configure", "--prefix=#{prefix}", "--with-freetype=#{MacOS::X11.prefix}"
+    arch = MacOS.prefer_64_bit? ? "x86_64" : "i386"
+    
+    system "./configure", "--prefix=#{prefix}", 
+                          "--with-freetype=#{MacOS::X11.prefix}",
+                          "--with-arch=#{arch}"
     system "make install"
     (lib+'pkgconfig/gdlib.pc').write pkg_file
   end
