@@ -1,15 +1,20 @@
-require 'formula'
+trequire 'formula'
 
 class Gd < Formula
   homepage 'http://bitbucket.org/pierrejoye/gd-libgd'
   url 'http://www.libgd.org/releases/gd-2.0.36RC1.tar.gz'
   mirror 'http://download.osgeo.org/mapserver/libgd/gd-2.0.36RC1.tar.gz'
-  md5 '39ac48e6d5e0012a3bd2248a0102f209'
+  sha1 '21cf2ec93fd80836fc0cb4741201f7cc5440819a'
 
   head 'http://bitbucket.org/pierrejoye/gd-libgd', :using => :hg
 
-  depends_on :x11
-  depends_on 'jpeg' => :recommended
+  option 'without-libpng', 'Build without PNG support'
+  option 'without-jpeg', 'Build without JPEG support'
+  option 'with-freetype', 'Build with FreeType support'
+
+  depends_on :libpng unless build.include? "without-libpng"
+  depends_on 'jpeg' => :recommended unless build.include? "without-jpeg"
+  depends_on :freetype if build.include? "with-freetype"
 
   fails_with :llvm do
     build 2326
@@ -17,11 +22,9 @@ class Gd < Formula
   end
 
   def install
-    arch = MacOS.prefer_64_bit? ? "x86_64" : "i386"
-    
-    system "./configure", "--prefix=#{prefix}", 
-                          "--with-freetype=#{MacOS::X11.prefix}",
-                          "--with-arch=#{arch}"
+    args = ["--prefix=#{prefix}"]
+    args << "--with-freetype" if build.include? 'with-freetype'
+    system "./configure", *args
     system "make install"
     (lib+'pkgconfig/gdlib.pc').write pkg_file
   end
@@ -42,5 +45,14 @@ Libs: -L${libdir} -lgd
 Libs.private: -lXpm -lX11 -ljpeg -lfontconfig -lfreetype -lpng12 -lz -lm
 Cflags: -I${includedir}
 EOF
+  end
+
+  def test
+    mktemp do
+      system "#{bin}/pngtogd", \
+        "/System/Library/Frameworks/SecurityInterface.framework/Versions/A/Resources/Key_Large.png", \
+        "gd_test.gd"
+      system "#{bin}/gdtopng", "gd_test.gd", "gd_test.png"
+    end
   end
 end
